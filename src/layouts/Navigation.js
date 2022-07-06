@@ -1,8 +1,15 @@
-import React from 'react'
-import { Nav, Navbar, NavDropdown } from 'react-bootstrap'
-import { NavLink } from 'react-router-dom'
+import React from 'react';
+import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { NavLink } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logoutUser } from '../actions/authActions';
 
 export default function Navigation() {
+
+    const loggedIn = useSelector(state => state.auth.loggedIn);
+    const user = useSelector(state => state.auth.user);
+    const dispatch = useDispatch();
+
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
         <Navbar.Brand as={NavLink} to={'/'}>React Java</Navbar.Brand>
@@ -11,16 +18,24 @@ export default function Navigation() {
 
         <Navbar.Collapse id="main-menu">
             <Nav className="mr-auto">
-                <Nav.Link>Create Post</Nav.Link>
+
+                { loggedIn && <Nav.Link as={NavLink} to={'/newpost'}>Create Post</Nav.Link> }
+
             </Nav>
             <Nav>
-                <Nav.Link>Crear Cuenta</Nav.Link>
-                <Nav.Link as={NavLink} to={'/signin'}>Iniciar Sesion</Nav.Link>
-                <NavDropdown title="Juan Garcia" id="menu-dropdown">
+                
+                { !loggedIn ? 
+                (<React.Fragment>
+                    <Nav.Link as={NavLink} to={'/signup'}>Crear Cuenta</Nav.Link>
+                    <Nav.Link as={NavLink} to={'/signin'}>Iniciar Sesion</Nav.Link>
+                </React.Fragment>)
+                :
+                (<NavDropdown title={user.sub} id="menu-dropdown">
+                    <NavDropdown.Item  as={NavLink} to={'/posts'}>Mis Posts</NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => dispatch(logoutUser())}>Cerrar sesion</NavDropdown.Item>
+                </NavDropdown>) }
 
-                    <NavDropdown.Item>Posts</NavDropdown.Item>
-                    <NavDropdown.Item>Cerrar sesion</NavDropdown.Item>
-                </NavDropdown>
+                
             </Nav>
         </Navbar.Collapse>
     </Navbar>
